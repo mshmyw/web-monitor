@@ -1,0 +1,29 @@
+{
+  "name": "ls",
+  "version": "1.0.0",
+  "description": "> TODO: description",
+  "author": "摘新 <shuanghua.msh@alibaba-inc.com>",
+  "homepage": "https://github.com/mshmyw/web-monitor#readme",
+  "license": "ISC",
+  "main": "lib/apps.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "http://registry.npm.taobao.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mshmyw/web-monitor.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/mshmyw/web-monitor/issues"
+  }
+}

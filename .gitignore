@@ -1,0 +1,12 @@
+dist
+node_modules
+.coverage
+.vscode
+.idea
+.DS_Store
+.schema
+*.log
+report.*.json
+/dev-settings.yaml
+/dev.config.js
+.history

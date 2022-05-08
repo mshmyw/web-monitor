@@ -1,0 +1,49 @@
+{
+  "name": "web-monitor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "for visual monitor",
+  "main": "index.js",
+  "repository": "https://github.com/github.com/web-monitor",
+  "author": "ximenchuixue",
+  "license": "GPL-3",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "start": "lerna run start",
+    "build": "npm run build:bricks && npm run build:micro-apps",
+    "build:bricks": "lerna run build --scope \"@bricks/*\"",
+    "build:micro-apps": "lerna run build --scope \"@micro-apps/*\"",
+    "build:templates": "lerna run build --scope \"@templates/*\"",
+    "postbuild": "npm run size-limit",
+    "size-limit": "size-limit",
+    "serve": "brick-container-serve",
+    "test": "cross-env NODE_ENV='test' jest",
+    "test:ci": "cross-env NODE_ENV='test' CI=true jest --ci",
+    "yo": "brick-scripts",
+    "yo-record": "brick-scripts -t record",
+    "yo-debug": "node --inspect-brk ./node_modules/@easyops/brick-scripts/dist/index.js",
+    "renew": "dev-dependencies-renew",
+    "extract": "dev-dependencies-extract"
+  },  
+  "devDependencies": {
+    "@chenshaorui/web-framework-kernel": "^0.3.0",
+    "@chenshaorui/web-framework-util": "^0.1.1",
+    "@types/classnames": "^2.2.9",
+    "@types/history": "^4.7.5",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^12.12.29",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@types/yaml": "^1.2.0",
+    "antd": "^3.26.14",
+    "history": "^4.10.1",
+    "lerna": "^3.20.2",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
