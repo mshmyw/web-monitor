@@ -2,5 +2,20 @@
   "packages": [
     "packages/*"
   ],
-  "version": "independent"
+  "version": "independent",
+  "npmClient": "yarn",
+  "stream": true,
+  "useWorkspaces": true,
+  "conventionalCommits": true,
+  "command": {
+    "publish": {
+      "npmClient": "npm",
+      "allowBranch": [
+        "master"
+      ],
+      "verifyAccess": false,
+      "message": "chore(release): publish",
+      "registry": "https://registry.npm.monitor.local"
+    }
+  }
 }
