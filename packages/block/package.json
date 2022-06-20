@@ -1,5 +1,5 @@
 {
-  "name": "@monitor/blocks",
+  "name": "@monitor/block",
   "version": "1.0.0",
   "description": "> TODO: description",
   "author": "摘新 <shuanghua.msh@alibaba-inc.com>",
@@ -13,15 +13,31 @@
   "files": [
     "lib"
   ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "antd": "^4.16.7",
+    "@antv/g2": "^4.2.1",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@vitejs/plugin-react-refresh": "^1.3.1",
+    "typescript": "^4.1.2",
+    "vite": "^2.1.5"
+  },
   "publishConfig": {
+    "access": "public",
     "registry": "http://registry.npm.taobao.org/"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mshmyw/web-monitor.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/mshmyw/web-monitor/issues"
