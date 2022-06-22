@@ -1,3 +1,5 @@
+import { IEnumerator } from './IEnumerator';
+
 export enum ETokenType {
   NONE, // 0 number default use number type start by 0
   STRING, // 1 string
@@ -16,8 +18,8 @@ export interface IDoom3Token {
 }
 
 // 分词器，标记处理器
-export interface IDoom3Tokenizer {
+export interface IDoom3Tokenizer extends IEnumerator<IDoom3Token> {
   setSource(source: string): void;
-  reset(): void;
-  getNextToken(token: IDoom3Token): boolean;
+  // reset(): void;
+  // getNextToken(token: IDoom3Token): boolean;
 }

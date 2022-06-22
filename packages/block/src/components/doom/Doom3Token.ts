@@ -1,6 +1,6 @@
 import { IDoom3Token, ETokenType } from "./typings";
 
-class Doom3Token implements IDoom3Token {
+export class Doom3Token implements IDoom3Token {
   private _type: ETokenType;
   private _val: number;
   private _charArr: string[] = [];
