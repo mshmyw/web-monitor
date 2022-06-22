@@ -1,6 +1,6 @@
 import Line from "./line/Line";
-import Doom from "./doom/Doom";
+import Render from "./render/Render";
 export {
-  Doom,
+  Render,
   Line
 };

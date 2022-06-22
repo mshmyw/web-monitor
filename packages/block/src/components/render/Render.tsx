@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Row, Col } from "antd";
-import {parseToken } from "./const";
+import {parseToken } from "../../utils/doom";
 
 export default (): React.ReactElement => {
   useEffect(() => {
