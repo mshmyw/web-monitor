@@ -6,6 +6,7 @@ import { Canvas2DApplication, Application } from "../../utils/canvas/application
 import "./Render.css";
 export default (): React.ReactElement => {
   let app: Application;
+  let timer0 = -1;
   useEffect(() => {
     // parseToken();
     // step(0);
@@ -15,13 +16,19 @@ export default (): React.ReactElement => {
     app.update(0, 0);
     app.render();
   });
+  const timerCallback = (id: number, data: string): void => {
+    console.log(`id: ${id}, data: ${data}`);
+  }
   const onStartBtnClick = () => {
     console.log("start");
+    timer0 = app.addTimer(timerCallback,
+      3, true, 'callback data');
     app.start();
   };
   const onStopBtnClick = () => {
     console.log("stop");
     app.stop();
+    app.removeTimer(timer0);
   };
 
   return (

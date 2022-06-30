@@ -1,6 +1,29 @@
 import { vec2 } from './math2d';
 
+export type TimerCallback = (id: number, data: any) => void;
+class Timer {
+  public id: number = -1;
+  public enabled: boolean = false;
+
+  public callback: TimerCallback;
+  public callbackData: any = undefined;
+
+  public countdown: number = 0;
+  public timeout: number = 0;
+  public onlyOnce: boolean = false;
+
+  constructor(callback: TimerCallback) {
+    this.callback = callback;
+  }
+}
+
 export class Application implements EventListenerObject {
+  public timers: Timer[] = [];
+
+  private _timeId: number = -1;
+
+  private _fps: number = 0;
+
   _start: boolean = false;
   _requestId = -1;
   _lastTime = -1;
@@ -44,22 +67,25 @@ export class Application implements EventListenerObject {
     return this._start;
   }
 
-  step(timeStamp: number) {
+  protected step(timeStamp: number): void {
     if (this._startTime === -1) this._startTime = timeStamp;
     if (this._lastTime === -1) this._lastTime = timeStamp;
-
-    // by micro sec
     let elapsedMsec = timeStamp - this._startTime;
-    // by sec
     let intervalSec = timeStamp - this._lastTime;
+    if (intervalSec !== 0) {
+      this._fps = 1000.0 / intervalSec;
+    }
+    intervalSec /= 1000.0;
     this._lastTime = timeStamp;
-
-    console.log(`elapsedMsec ${elapsedMsec} intervalSec ${intervalSec}`);
+    console.log(`intervalSec ${intervalSec}`);
+    this._handleTimers(intervalSec);
     this.update(elapsedMsec, intervalSec);
     this.render();
-    const step = (elapsedMsec: number) => this.step(elapsedMsec);
-    this._requestId = requestAnimationFrame(step);
+    this._requestId = requestAnimationFrame((elapsedMsec: number): void => {
+      this.step(elapsedMsec);
+    });
   }
+
   update(elapsedMsec: number, intervalSec: number) {}
   render() {}
 
@@ -199,10 +225,15 @@ export class Application implements EventListenerObject {
   _viewportToCanvasCoordinate(evt: MouseEvent): vec2 {
     if (this.canvas) {
       if (evt) {
-      if (evt.type === 'mousedown') {
-        console.log('【鼠标】pageX : ' + evt.pageX + ' pageY : ' + evt.pageY);
-        console.log('【canvas】offsetLeft : ' + this.canvas.offsetLeft + ' offsetTop : ' + this.canvas.offsetTop);
-      }
+        if (evt.type === 'mousedown') {
+          console.log('【鼠标】pageX : ' + evt.pageX + ' pageY : ' + evt.pageY);
+          console.log(
+            '【canvas】offsetLeft : ' +
+              this.canvas.offsetLeft +
+              ' offsetTop : ' +
+              this.canvas.offsetTop
+          );
+        }
 
         let x, y; // 要获取的是在canvas(它也是个dom元素)元素中的位置，w3c坐标系
         // 鼠标当前位置
@@ -257,6 +288,71 @@ export class Application implements EventListenerObject {
       event.shiftKey
     );
     return canvasKeyboardEvent;
+  }
+
+  public removeTimer(id: number): boolean {
+    let found: boolean = false;
+    for (let i = 0; i < this.timers.length; i++) {
+      if (this.timers[i].id === id) {
+        let timer: Timer = this.timers[i];
+        timer.enabled = false;
+        found = true;
+        break;
+      }
+    }
+    return found;
+  }
+
+  public addTimer(
+    callback: TimerCallback,
+    timeout: number = 1.0,
+    onlyOnce: boolean = false,
+    data: any = undefined
+  ): number {
+    let timer: Timer;
+    let found: boolean = false;
+    for (let i = 0; i < this.timers.length; i++) {
+      let timer: Timer = this.timers[i];
+      if (timer.enabled === false) {
+        timer.callback = callback;
+        timer.callbackData = data;
+        timer.timeout = timeout;
+        timer.countdown = timeout;
+        timer.enabled = true;
+        timer.onlyOnce = onlyOnce;
+        return timer.id;
+      }
+    }
+
+    timer = new Timer(callback);
+    timer.callbackData = data;
+    timer.timeout = timeout;
+    timer.countdown = timeout;
+    timer.enabled = true;
+    timer.id = ++this._timeId;
+    timer.onlyOnce = onlyOnce;
+
+    this.timers.push(timer);
+    return timer.id;
+  }
+
+  private _handleTimers(intervalSec: number): void {
+    for (let i = 0; i < this.timers.length; i++) {
+      let timer: Timer = this.timers[i];
+      if (timer.enabled === false) {
+        continue;
+      }
+      timer.countdown -= intervalSec;
+      console.log("countdown ", timer.countdown, intervalSec);
+      if (timer.countdown < 0.0) {
+        timer.callback(timer.id, timer.callbackData);
+        if (timer.onlyOnce === false) {
+          timer.countdown = timer.timeout;
+        } else {
+          this.removeTimer(timer.id);
+        }
+      }
+    }
   }
 }
 
