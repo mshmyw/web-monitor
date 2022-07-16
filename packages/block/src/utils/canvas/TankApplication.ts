@@ -14,6 +14,217 @@ import {
   Rectangle,
   Inset,
 } from './math2d';
+class Tank {
+  public width: number = 80;
+  public height: number = 50;
+  public x: number = 100;
+  public y: number = 100;
+  public scaleX: number = 1.0;
+  public scaleY: number = 1.0;
+  public tankRotation: number = 0;
+  public turretRotation: number = 0;
+  public initYAxis: boolean = false;
+
+  public showLine: boolean = false;
+  public showCoord: boolean = false;
+
+  public gunLength: number = Math.max(this.width, this.height);
+  public gunMuzzleRadius: number = 5;
+
+  public targetX: number = 0;
+  public targetY: number = 0;
+
+  public linearSpeed: number = 100.0;
+  public turretRotateSpeed: number = Math2D.toRadian(2);
+
+  private _lookAt(): void {
+    let diffX: number = this.targetX - this.x;
+    let diffY: number = this.targetY - this.y;
+    let radian = Math.atan2(diffY, diffX);
+    this.tankRotation = radian;
+  }
+
+  private _moveTowardTo(intervalSec: number): void {
+    let diffX: number = this.targetX - this.x;
+    let diffY: number = this.targetY - this.y;
+    let currSpeed: number = this.linearSpeed * intervalSec;
+    if (diffX * diffX + diffY * diffY > currSpeed * currSpeed) {
+      this.x = this.x + Math.cos(this.tankRotation) * currSpeed;
+      this.y = this.y + Math.sin(this.tankRotation) * currSpeed;
+    }
+  }
+
+  public update(intervalSec: number): void {
+    this._moveTowardTo(intervalSec);
+  }
+
+  public onMouseMove(evt: CanvasMouseEvent): void {
+    this.targetX = evt.canvasPosition.x;
+    this.targetY = evt.canvasPosition.y;
+    this._lookAt();
+  }
+
+  public onKeyPress(evt: CanvasKeyBoardEvent): void {
+    if (evt.key === 'r') {
+      this.turretRotation += this.turretRotateSpeed;
+    } else if (evt.key === 't') {
+      this.turretRotation = 0;
+    } else if (evt.key === 'e') {
+      this.turretRotation -= this.turretRotateSpeed;
+    }
+  }
+
+  public draw(app: TestApplication): void {
+    if (app.context2D === null) {
+      return;
+    }
+    app.context2D.save();
+    app.context2D.translate(this.x, this.y);
+    app.context2D.rotate(this.tankRotation);
+    app.context2D.scale(this.scaleX, this.scaleY);
+    app.context2D.save();
+    app.context2D.fillStyle = 'grey';
+    app.context2D.beginPath();
+    app.context2D.rect(
+      -this.width * 0.5,
+      -this.height * 0.5,
+      this.width,
+      this.height
+    );
+    app.context2D.fill();
+    app.context2D.restore();
+
+    app.context2D.save();
+    app.context2D.rotate(this.turretRotation);
+    app.context2D.fillStyle = 'red';
+    app.context2D.beginPath();
+    app.context2D.ellipse(0, 0, 15, 10, 0, 0, Math.PI * 2);
+    app.context2D.fill();
+    app.context2D.strokeStyle = 'blue';
+    app.context2D.lineWidth = 5;
+    app.context2D.lineCap = 'round';
+    app.context2D.beginPath();
+    app.context2D.moveTo(0, 0);
+    app.context2D.lineTo(this.gunLength, 0);
+    app.context2D.stroke();
+    app.context2D.translate(this.gunLength, 0);
+    app.context2D.translate(this.gunMuzzleRadius, 0);
+    app.fillCircle(0, 0, 5, 'black');
+    app.context2D.restore();
+    app.context2D.save();
+    app.context2D.translate(this.width * 0.5, 0);
+    app.fillCircle(0, 0, 10, 'green');
+    app.context2D.restore();
+    if (this.showCoord) {
+      app.context2D.save();
+      app.context2D.lineWidth = 1;
+      app.context2D.lineCap = 'butt';
+      app.strokeCoord(0, 0, this.width * 1.2, this.height * 1.2);
+      app.context2D.restore();
+    }
+    app.context2D.restore();
+    app.context2D.save();
+    app.strokeLine(
+      this.x,
+      this.y,
+      app.canvas.width * 0.5,
+      app.canvas.height * 0.5
+    );
+    app.strokeLine(this.x, this.y, this.targetX, this.targetY);
+    app.context2D.restore();
+  }
+
+  public draw2(app: TestApplication): void {
+    if (app.context2D === null) {
+      return;
+    }
+    app.context2D.save();
+    app.context2D.translate(this.x, this.y);
+    app.context2D.rotate(
+      this.initYAxis ? this.tankRotation - Math.PI * 0.5 : this.tankRotation
+    );
+    app.context2D.scale(this.scaleX, this.scaleY);
+    app.context2D.save();
+    app.context2D.fillStyle = 'grey';
+    app.context2D.beginPath();
+    if (this.initYAxis) {
+      app.context2D.rect(
+        -this.height * 0.5,
+        -this.width * 0.5,
+        this.height,
+        this.width
+      );
+    } else {
+      app.context2D.rect(
+        -this.width * 0.5,
+        -this.height * 0.5,
+        this.width,
+        this.height
+      );
+    }
+    app.context2D.fill();
+    app.context2D.restore();
+    app.context2D.save();
+    app.context2D.rotate(this.turretRotation);
+    app.context2D.fillStyle = 'red';
+    app.context2D.beginPath();
+    if (this.initYAxis) {
+      app.context2D.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2);
+    } else {
+      app.context2D.ellipse(0, 0, 15, 10, 0, 0, Math.PI * 2);
+    }
+    app.context2D.fill();
+    app.context2D.strokeStyle = 'blue';
+    app.context2D.lineWidth = 5;
+    app.context2D.lineCap = 'round';
+    app.context2D.beginPath();
+    app.context2D.moveTo(0, 0);
+    if (this.initYAxis) {
+      app.context2D.lineTo(0, this.gunLength);
+    } else {
+      app.context2D.lineTo(this.gunLength, 0);
+    }
+    app.context2D.stroke();
+    if (this.initYAxis) {
+      app.context2D.translate(0, this.gunLength);
+      app.context2D.translate(0, this.gunMuzzleRadius);
+    } else {
+      app.context2D.translate(this.gunLength, 0);
+      app.context2D.translate(this.gunMuzzleRadius, 0);
+    }
+    app.fillCircle(0, 0, 5, 'black');
+    app.context2D.restore();
+    app.context2D.save();
+    if (this.initYAxis) {
+      app.context2D.translate(0, this.height * 0.5);
+    } else {
+      app.context2D.translate(this.width * 0.5, 0);
+    }
+    app.fillCircle(0, 0, 10, 'green');
+    app.context2D.restore();
+    if (this.showCoord) {
+      app.context2D.save();
+      app.context2D.lineWidth = 1;
+      app.context2D.lineCap = 'butt';
+      app.strokeCoord(0, 0, this.width * 1.2, this.height * 1.2);
+      app.context2D.restore();
+    }
+    app.context2D.restore();
+
+    if (this.showLine === false) {
+      return;
+    }
+    app.context2D.save();
+    app.strokeLine(
+      this.x,
+      this.y,
+      app.canvas.width * 0.5,
+      app.canvas.height * 0.5
+    );
+    app.strokeLine(this.x, this.y, this.targetX, this.targetY);
+    app.context2D.restore();
+  }
+}
 
 class RenderState {
   public lineWidth: number = 1;
@@ -158,18 +369,15 @@ export class TestApplication extends Canvas2DApplication {
   private _mouseX: number = 0;
   private _mouseY: number = 0;
 
-  public matrixStack: MatrixStack = new MatrixStack();
+  public tank: Tank;
 
+  public matrixStack: MatrixStack = new MatrixStack();
   public constructor(canvas: HTMLCanvasElement) {
     super(canvas);
-    let stack: RenderStateStack = new RenderStateStack();
-    stack.printCurrentStateInfo();
-    stack.save();
-    stack.lineWidth = 10;
-    stack.fillStyle = 'black';
-    stack.printCurrentStateInfo();
-    stack.restore();
-    stack.printCurrentStateInfo();
+    this.tank = new Tank();
+    this.tank.initYAxis = false;
+    this.tank.x = canvas.width * 0.5;
+    this.tank.y = canvas.height * 0.5;
     // this . addTimer ( this . timeCallback . bind ( this ) , 0.033 ) ;
     // this . loadImage ( ) ;
   }
@@ -177,16 +385,17 @@ export class TestApplication extends Canvas2DApplication {
   protected dispatchMouseMove(evt: CanvasMouseEvent): void {
     this._mouseX = evt.canvasPosition.x;
     this._mouseY = evt.canvasPosition.y;
+    this.tank.onMouseMove(evt);
   }
 
   protected dispatchMouseUp(evt: CanvasMouseEvent): void {}
 
-  protected dispatchKeyPress(evt: CanvasKeyBoardEvent): void {}
+  protected dispatchKeyPress(evt: CanvasKeyBoardEvent): void {
+    this.tank.onKeyPress(evt);
+  }
 
   public update(elapsedMsec: number, intervalSec: number): void {
-    this._rotationMoon += this._rotationMoonSpeed * intervalSec;
-    this._rotationSun += this._rotationSunSpeed * intervalSec;
-    this._revolution += this._revolutionSpeed * intervalSec;
+    this.tank.update(intervalSec);
   }
 
   public render(): void {
@@ -195,20 +404,15 @@ export class TestApplication extends Canvas2DApplication {
       this.strokeGrid();
       this.drawCanvasCoordCenter();
       this.draw4Quadrant();
-
-      // 请自行切换下面测试函数
-      /*****************第5章第1节Demo********************* */
-      //this . doTransform0 ( ) ;
-      //this . doTransform ( 30 , true ) ;
-      //this . doTransform ( 30 , false ) ;
-
-      //this . testFillLocalRectWithTitle ( ) ;
-      //this . doLocalTransform ( ) ;
-      this.testFillLocalRectWithTitleUV();
-      this.rotationAndRevolutionSimulation();
-
+      /*****************第5章第2节Demo********************* */
+      this.drawTank();
       this.drawCoordInfo(
-        '[' + this._mouseX + ',' + this._mouseY + ']',
+        '坐标 : [' +
+          (this._mouseX - this.tank.x).toFixed(2) +
+          ',' +
+          (this._mouseY - this.tank.y).toFixed(2) +
+          '] 角度 : ' +
+          Math2D.toDegree(this.tank.tankRotation).toFixed(2),
         this._mouseX,
         this._mouseY
       );
@@ -561,7 +765,7 @@ public start ( ) : void {
     }
   }
 
-  public strokeGrid(color: string = 'grey', interval: number = 10): void {
+  public strokeGrid(color: string = 'grey', interval: number = 20): void {
     if (this.context2D !== null) {
       this.context2D.save();
       this.context2D.strokeStyle = color;
@@ -1327,6 +1531,10 @@ public start ( ) : void {
     }
   }
 
+  /*******************************************第4章全部结束************************************************ */
+
+  /*******************************************第5章坐标系变换代码************************************************ */
+
   /*******************************************5.1节代码************************************************ */
   public drawCanvasCoordCenter(): void {
     if (this.context2D === null) {
@@ -1647,7 +1855,7 @@ public start ( ) : void {
         );
         this.context2D.rotate(-radians);
       }
-      //this . fillRectWithTitle ( 0 , 0  , 100 , 60 , '-' + degree + '度旋转'  ) ;
+      this . fillRectWithTitle ( 0 , 0  , 100 , 60 , '-' + degree + '度旋转'  ) ;
       this.fillLocalRectWithTitleUV(width, height, '-' + degree + '度旋转');
       this.context2D.restore();
 
@@ -1697,11 +1905,11 @@ public start ( ) : void {
     this.fillCircle(0, 0, radius);
 
     this.context2D.translate(100, 100);
-    this.fillLocalRectWithTitle(width, height, '6. 局部平移100个单位');
+    // this.fillLocalRectWithTitle(width, height, '6. 局部平移100个单位');
     this.strokeCoord(0, 0, coordWidth, coordHeight);
     this.fillCircle(0, 0, radius);
 
-    //this . fillLocalRectWithTitle ( width * 1.5 , height * 2.0 , '' ) ;
+    // this . fillLocalRectWithTitle ( width * 1.5 , height * 2.0 , '' ) ;
 
     this.context2D.scale(1.5, 2.0);
     this.fillLocalRectWithTitle(
@@ -1710,7 +1918,7 @@ public start ( ) : void {
       '7. 缩放局部坐标系',
       ELayout.LEFT_MIDDLE
     );
-    //this . fillLocalRectWithTitle ( width * 1.5 , height * 2.0 , '7. 放大物体尺寸' ) ;
+    // this . fillLocalRectWithTitle ( width * 1.5 , height * 2.0 , '7. 放大物体尺寸' ) ;
     this.strokeCoord(0, 0, coordWidth, coordHeight);
     this.fillCircle(0, 0, radius);
 
@@ -1848,7 +2056,7 @@ public start ( ) : void {
       this.canvas.height,
       'rgba( 0 , 0 , 255 , 0.5 )',
       'right',
-      'bottom',
+      'middle',
       '20px sans-serif'
     );
     this.fillText(
@@ -1881,11 +2089,83 @@ public start ( ) : void {
 
     this.context2D.restore();
   }
+
+  public drawTank(): void {
+    this.tank.draw(this);
+  }
+
+  public drawTank2(): void {
+    this.tank.draw2(this);
+  }
+
+  public drawTriangle(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    stroke: boolean = true
+  ): void {
+    if (this.context2D === null) {
+      return;
+    }
+
+    this.context2D.save();
+    this.context2D.lineWidth = 3;
+    this.context2D.strokeStyle = 'rgba( 0 , 0 , 0 , 0.5 )';
+    this.context2D.beginPath();
+    this.context2D.moveTo(x0, y0);
+    this.context2D.lineTo(x1, y1);
+    this.context2D.lineTo(x2, y2);
+    this.context2D.closePath();
+    if (stroke) {
+      this.context2D.stroke();
+    } else {
+      this.context2D.fill();
+    }
+
+    this.fillCircle(x2, y2, 5);
+    this.context2D.restore();
+  }
 }
 
 //获取canvas元素
-let canvas: HTMLCanvasElement = document.getElementById(
-  'canvas'
-) as HTMLCanvasElement;
+// let canvas: HTMLCanvasElement = document.getElementById(
+//   'canvas'
+// ) as HTMLCanvasElement;
 // let app: TestApplication = new TestApplication(canvas);
 // app.start();
+
+// 如果要运行下面代码，请将上面的app.start()这一行注释掉
+/*
+let ptX : number = 600 ;
+let ptY : number = 500 ;
+
+app . strokeGrid ( ) ; // 绘制背景网格
+app . drawCanvasCoordCenter ( ) ; //绘制中心坐标系和原点
+app . draw4Quadrant ( ) ; // 绘制四个象限文字
+
+// 在画布中心绘制坦克
+app . drawTank2 ( ) ; // 绘制坦克
+
+// 绘制旋转后并且位于画布中心的坦克
+app . tank . tankRotation = Math . atan2 ( ptX - app . canvas . width * 0.5 , ptY - app . canvas . height * 0.5 ) ;
+app . drawTank2 ( ) ;
+
+//计算出点[ ptX , ptY ] 与 tank原点之间的距离（也就是三角形斜边的长度）
+let len : number = app . distance ( ptX , ptY , app . canvas . width * 0.5 , app . canvas . height * 0.5 ) ;
+
+// 计算出斜边一半时的坐标，然后在该坐标处绘制坦克
+app . tank . x = app . tank . x + Math . cos ( app . tank . tankRotation ) * len * 0.5;
+app . tank . y = app . tank . y + Math . sin (  app . tank . tankRotation ) * len * 0.5 ;
+app . drawTank2 ( ) ;
+
+// 接下来我们要继续将坦克绘制到斜边的末尾 ，上面代码已经将坦克的坐标更新到了斜边一半
+app . tank . x = app . tank . x + Math . cos ( app . tank . tankRotation ) * len * 0.5;
+app . tank . y = app . tank . y + Math . sin ( app . tank . tankRotation ) * len * 0.5 ;
+app . drawTank2 ( ) ;
+
+// 绘制平面直角三角形
+app . drawTriangle ( app . canvas . width * 0.5 , app . canvas . height * 0.5 , ptX , app . canvas . height * 0.5 , ptX , ptY ) ;
+*/

@@ -165,11 +165,16 @@ export class TestApplication extends Canvas2DApplication {
     let stack: RenderStateStack = new RenderStateStack();
     stack.printCurrentStateInfo();
     stack.save();
+
     stack.lineWidth = 10;
     stack.fillStyle = 'black';
+
     stack.printCurrentStateInfo();
     stack.restore();
     stack.printCurrentStateInfo();
+
+    // 添加计时器，以每秒30帧的速度运行
+    // 使用bind方法绑定回调函数
     // this . addTimer ( this . timeCallback . bind ( this ) , 0.033 ) ;
     // this . loadImage ( ) ;
   }
@@ -183,11 +188,7 @@ export class TestApplication extends Canvas2DApplication {
 
   protected dispatchKeyPress(evt: CanvasKeyBoardEvent): void {}
 
-  public update(elapsedMsec: number, intervalSec: number): void {
-    this._rotationMoon += this._rotationMoonSpeed * intervalSec;
-    this._rotationSun += this._rotationSunSpeed * intervalSec;
-    this._revolution += this._revolutionSpeed * intervalSec;
-  }
+  public update(elapsedMsec: number, intervalSec: number): void {}
 
   public render(): void {
     if (this.context2D !== null) {
@@ -196,17 +197,6 @@ export class TestApplication extends Canvas2DApplication {
       this.drawCanvasCoordCenter();
       this.draw4Quadrant();
 
-      // 请自行切换下面测试函数
-      /*****************第5章第1节Demo********************* */
-      //this . doTransform0 ( ) ;
-      //this . doTransform ( 30 , true ) ;
-      //this . doTransform ( 30 , false ) ;
-
-      //this . testFillLocalRectWithTitle ( ) ;
-      //this . doLocalTransform ( ) ;
-      this.testFillLocalRectWithTitleUV();
-      this.rotationAndRevolutionSimulation();
-
       this.drawCoordInfo(
         '[' + this._mouseX + ',' + this._mouseY + ']',
         this._mouseX,
@@ -214,7 +204,6 @@ export class TestApplication extends Canvas2DApplication {
       );
     }
   }
-
   /*******************************************4.1节代码************************************************ */
   private _drawRect(x: number, y: number, w: number, h: number): void {
     if (this.context2D !== null) {
@@ -330,12 +319,16 @@ export class TestApplication extends Canvas2DApplication {
   }
 
   /*
-public start ( ) : void {
-   this . addTimer ( (id : number , data : any) : void => {
-       this . timeCallback ( id , data ) ;
-   } , 0.05) ;
-   super . start ( ) ;
-}*/
+   public start ( ) : void {
+       // 添加计时器，使用箭头方法进行this绑定
+       // 以每秒20帧的速度运行
+       this . addTimer ( (id : number , data : any) : void => {
+           this . timeCallback ( id , data ) ;
+       } , 0.05) ;
+
+       // 很重要，需要通过super属性（super方法只能在构造函数中调用）调用基类同名方法。
+       super . start ( ) ;
+   }*/
 
   public static Colors: string[] = [
     'aqua', //浅绿色
@@ -999,15 +992,15 @@ public start ( ) : void {
     img.onload = (ev: Event): void => {
       if (this.context2D !== null) {
         /*
-            // 在console控制台输出载入图像的尺寸
-            console . log ( url + " 尺寸为 [ " + img . width + " , " + img . height + " ] " ) ;
-            // 将srcImage保持原样的方式绘制到Canvas画布[ 10 , 10 ]的位置
-            this . context2D . drawImage ( img , 10 , 10 ) ;
-            // 将srcImage以拉伸缩放的方式绘制到Canvas画布指定的矩形中去
-            this . context2D . drawImage ( img , img . width + 30  , 10 , 200 , img . height ) ;
-            // 将srcImage的部分区域[ 44 , 6 , 162 , 175 , 200 ]以拉伸缩放的方式绘制到Canvas画布指定的矩形[ 200 , img . height + 30 , 200 , 130 ]中去
-            this . context2D . drawImage ( img , 44 , 6 , 162 , 175 , 200 , img . height + 30 , 200 , 130  ) ;
-            */
+                // 在console控制台输出载入图像的尺寸
+                console . log ( url + " 尺寸为 [ " + img . width + " , " + img . height + " ] " ) ;
+                // 将srcImage保持原样的方式绘制到Canvas画布[ 10 , 10 ]的位置
+                this . context2D . drawImage ( img , 10 , 10 ) ;
+                // 将srcImage以拉伸缩放的方式绘制到Canvas画布指定的矩形中去
+                this . context2D . drawImage ( img , img . width + 30  , 10 , 200 , img . height ) ;
+                // 将srcImage的部分区域[ 44 , 6 , 162 , 175 , 200 ]以拉伸缩放的方式绘制到Canvas画布指定的矩形[ 200 , img . height + 30 , 200 , 130 ]中去
+                this . context2D . drawImage ( img , 44 , 6 , 162 , 175 , 200 , img . height + 30 , 200 , 130  ) ;
+                */
         //this . drawImage ( img , Rectangle .create ( 20, 20 , 540 , 300 ) , Rectangle . create ( 44 , 6 , 162 , 175 ) , EImageFillType . STRETCH ) ;
         // this . drawImage ( img , Rectangle .create ( 20, 20 , 100 , 50 ) , Rectangle . create ( 44 , 6 , 162 , 175 ) , EImageFillType . REPEAT ) ;
       }
@@ -1326,6 +1319,10 @@ public start ( ) : void {
       this.context2D.fill();
     }
   }
+
+  /*******************************************第4章全部结束************************************************ */
+
+  /*******************************************第5章坐标系变换代码************************************************ */
 
   /*******************************************5.1节代码************************************************ */
   public drawCanvasCoordCenter(): void {
@@ -1715,15 +1712,15 @@ public start ( ) : void {
     this.fillCircle(0, 0, radius);
 
     /*
-    this . context2D . rotate ( Math2D . toRadian ( 70 ) ) ;
-    this . fillLocalRectWithTitle ( width , height , '4. 继续旋转70度' ) ;
+        this . context2D . rotate ( Math2D . toRadian ( 70 ) ) ;
+        this . fillLocalRectWithTitle ( width , height , '4. 继续旋转70度' ) ;
 
-    this . context2D . translate ( 0 , 100 ) ;
-    this . fillLocalRectWithTitle ( width , height , '5. y轴局部平移100像素' ) ;
+        this . context2D . translate ( 0 , 100 ) ;
+        this . fillLocalRectWithTitle ( width , height , '5. y轴局部平移100像素' ) ;
 
-    this . context2D .scale ( 1.5 , 1.0 ) ;
-    this . fillLocalRectWithTitle (width , height , '6. x轴局部放大1.5倍' ) ;
-    */
+        this . context2D .scale ( 1.5 , 1.0 ) ;
+        this . fillLocalRectWithTitle (width , height , '6. x轴局部放大1.5倍' ) ;
+        */
     this.context2D.restore();
   }
 
@@ -1833,7 +1830,6 @@ public start ( ) : void {
     this.context2D.restore();
     this.context2D.restore();
   }
-
   /*******************************************5.2节代码************************************************ */
   public draw4Quadrant(): void {
     if (this.context2D === null) {
@@ -1881,11 +1877,399 @@ public start ( ) : void {
 
     this.context2D.restore();
   }
+  /*******************************************第6章代码************************************************ */
+
+  /*******************************************6.1代码************************************************ */
+  public drawVec(
+    len: number,
+    arrowLen: number = 10,
+    beginText: string = '',
+    endText = '',
+    lineWidth: number = 1,
+    isLineDash: boolean = false,
+    showInfo: boolean = true,
+    alpha: boolean = false
+  ): void {
+    if (this.context2D === null) {
+      return;
+    }
+
+    if (len < 0) {
+      arrowLen = -arrowLen;
+    }
+
+    this.context2D.save();
+    this.context2D.lineWidth = lineWidth;
+
+    if (isLineDash) {
+      this.context2D.setLineDash([2, 2]);
+    }
+
+    if (lineWidth > 1) {
+      this.fillCircle(0, 0, 5);
+    } else {
+      this.fillCircle(0, 0, 3);
+    }
+
+    this.context2D.save();
+    if (alpha === true) {
+      this.context2D.strokeStyle = 'rgba( 0 , 0 , 0 , 0.3 )';
+    }
+
+    this.strokeLine(0, 0, len, 0);
+
+    this.context2D.save();
+    this.strokeLine(len, 0, len - arrowLen, arrowLen);
+    this.context2D.restore();
+
+    this.context2D.save();
+    this.strokeLine(len, 0, len - arrowLen, -arrowLen);
+    this.context2D.restore();
+
+    this.context2D.restore();
+
+    let font: FontType = '15px sans-serif';
+
+    if (beginText != undefined && beginText.length != 0) {
+      if (len > 0) {
+        this.fillText(beginText, 0, 0, 'black', 'right', 'bottom', font);
+      } else {
+        this.fillText(beginText, 0, 0, 'black', 'left', 'bottom', font);
+      }
+    }
+
+    len = parseFloat(len.toFixed(2));
+
+    if (beginText != undefined && endText.length != 0) {
+      if (len > 0) {
+        this.fillText(endText, len, 0, 'black', 'left', 'bottom', font);
+      } else {
+        this.fillText(endText, len, 0, 'black', 'right', 'bottom', font);
+      }
+    }
+
+    if (showInfo === true) {
+      this.fillText(
+        Math.abs(len).toString(),
+        len * 0.5,
+        0,
+        'black',
+        'center',
+        'bottom',
+        font
+      );
+    }
+
+    this.context2D.restore();
+  }
+
+  public drawVecFromLine(
+    start: vec2,
+    end: vec2,
+    arrowLen: number = 10,
+    beginText: string = '',
+    endText = '',
+    lineWidth: number = 1,
+    isLineDash: boolean = false,
+    showInfo: boolean = false,
+    alpha: boolean = false
+  ): number {
+    let angle: number = vec2.getOrientation(start, end, true);
+    if (this.context2D !== null) {
+      let diff: vec2 = vec2.difference(end, start);
+      let len: number = diff.length;
+      this.context2D.save();
+      this.context2D.translate(start.x, start.y);
+      this.context2D.rotate(angle);
+      this.drawVec(
+        len,
+        arrowLen,
+        beginText,
+        endText,
+        lineWidth,
+        isLineDash,
+        showInfo,
+        alpha
+      );
+      this.context2D.restore();
+    }
+    return angle;
+  }
+
+  public drawTriangle(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    ptX: number = x2,
+    ptY: number = y2,
+    drawSubTriangle: boolean = false,
+    stroke: boolean = true
+  ): void {
+    if (this.context2D === null) {
+      return;
+    }
+
+    this.context2D.save();
+    this.context2D.lineWidth = 3;
+    this.context2D.strokeStyle = 'rgba( 0 , 0 , 0 , 0.5 )';
+    this.context2D.beginPath();
+    this.context2D.moveTo(x0, y0);
+    this.context2D.lineTo(x1, y1);
+    this.context2D.lineTo(x2, y2);
+    this.context2D.closePath();
+    if (stroke) {
+      this.context2D.stroke();
+    } else {
+      this.context2D.fill();
+    }
+
+    if (drawSubTriangle === true) {
+      this.context2D.lineWidth = 2;
+      this.context2D.setLineDash([3, 3]);
+      this.strokeLine(x0, y0, ptX, ptY);
+      this.strokeLine(x1, y1, ptX, ptY);
+      this.strokeLine(x2, y2, ptX, ptY);
+    }
+
+    this.fillCircle(ptX, ptY, 5);
+    this.context2D.restore();
+  }
+
+  public drawPolygon(
+    points: vec2[],
+    ptX: number,
+    ptY: number,
+    drawSubTriangle: boolean = false
+  ): void {
+    if (this.context2D === null) return;
+    this.context2D.save();
+    this.context2D.strokeStyle = 'rgba( 0 , 0 , 0 , 0.5 )';
+    this.context2D.lineWidth = 3;
+    this.context2D.translate(ptX, ptY);
+
+    // 绘制多边形
+    this.context2D.beginPath();
+    this.context2D.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      this.context2D.lineTo(points[i].x, points[i].y);
+    }
+    this.context2D.closePath();
+    this.context2D.stroke();
+
+    // 绘制虚线，形成子三角形
+    if (drawSubTriangle === true) {
+      this.context2D.lineWidth = 2;
+      this.context2D.setLineDash([3, 3]);
+      for (let i: number = 1; i < points.length - 1; i++) {
+        this.strokeLine(points[0].x, points[0].y, points[i].x, points[i].y);
+      }
+    }
+
+    this.fillCircle(points[0].x, points[0].y, 5, 'red');
+    this.context2D.restore();
+  }
 }
 
 //获取canvas元素
-let canvas: HTMLCanvasElement = document.getElementById(
-  'canvas'
-) as HTMLCanvasElement;
+// let canvas: HTMLCanvasElement = document.getElementById(
+//   'canvas'
+// ) as HTMLCanvasElement;
 // let app: TestApplication = new TestApplication(canvas);
-// app.start();
+// app.strokeGrid();
+// app.drawCanvasCoordCenter();
+// app.draw4Quadrant();
+
+/*
+// 图6.1向量概念源码
+if ( app.context2D ) {
+    let center: vec2 = vec2.create( app.canvas.width * 0.5, app.canvas.height * 0.5 );
+    let offset: vec2 = vec2.create( 50, 50 );
+
+    app.context2D.save();
+    app.context2D.translate( center.x + offset.x, center.y + offset.y );
+    app.context2D.rotate( Math2D.toRadian( 45 ) )
+    app.drawVec( 100, 10, "tail", "head", 3, false );
+    app.context2D.restore();
+
+    app.context2D.save();
+    app.context2D.translate( center.x - offset.x, center.y + offset.y );
+    app.context2D.rotate( Math2D.toRadian( 135 ) )
+    app.drawVec( 150, 10, "tail", "head", 3 );
+    app.context2D.restore();
+
+    app.context2D.save();
+    app.context2D.translate( center.x - offset.x, center.y - offset.y );
+    app.context2D.rotate( Math2D.toRadian( -135 ) )
+    app.drawVec( 200, 10, "tail", "head", 3 );
+    app.context2D.restore();
+
+    app.context2D.save();
+    app.context2D.translate( center.x + offset.x, center.y - offset.y );
+    app.context2D.rotate( Math2D.toRadian( - 45 ) )
+    app.drawVec( 250, 10, "tail", "head", 3 );
+    app.context2D.restore();
+}
+*/
+
+/*
+// 图6.2向量加法/图6.3向量减法源码
+let isAdd : boolean = true ; // false ;
+if ( app . context2D ) {
+
+    let start : vec2 = vec2 .create ( 200 , 100 ) ;
+    let end0 : vec2 = vec2 . create ( 400 , 100 ) ;
+    let end1 : vec2 = vec2 . create ( 400 , 300 ) ;
+
+    // 绘制同一个原点的两个矢量
+    app . drawVecFromLine ( start , end0 , 10 , undefined , undefined , 1 , false , true  ) ;
+    app . drawVecFromLine ( start , end1 , 10 , undefined , undefined , 1 , false , true) ;
+
+    if ( isAdd === true ) {
+        // 加法
+        // 首尾相连法加法，将start->end1矢量与start-end0向量尾部相连
+        app . drawVecFromLine ( end0 , vec2 . sum ( end0 , vec2 . difference ( end1 , start ) ) , 10 , undefined , undefined , 1 ,  true , true  ) ;
+        app . drawVecFromLine ( end1 , vec2 . sum ( end1 , vec2 . difference ( end0 , start ) ) , 10 , undefined , undefined , 1 ,  true , true ) ;
+
+        let sum : vec2 = vec2 . sum ( end0 , end1 ) ; //
+        sum  = vec2 . difference ( sum , start ) ; // 相对start的偏移向量
+        app . drawVecFromLine ( start , sum , 10 , undefined , undefined , 5 ,  false , true , true ) ;
+    } else {
+        // 减法
+        app . drawVecFromLine ( end0 , end1 , 10 , undefined , undefined , 5 ,  false , true , false ) ;
+    }
+}
+*/
+
+/*
+// 图6.4负向量源码
+if ( app . context2D ) {
+    //在[ 500 , 400 ]绘制长度为200的向量
+    app . context2D . save ( ) ;
+        app . context2D . translate ( 400 , 300 ) ;
+        app . context2D . rotate ( Math2D . toRadian ( 45 ) )
+        app . drawVec ( 200 ) ;
+    app . context2D . restore ( ) ;
+
+    //在[ 500 , 400 ]绘制长度为200的向量
+    app . context2D . save ( ) ;
+        app . context2D . translate ( 400 , 300 ) ;
+        app . context2D . rotate ( Math2D . toRadian ( 45 ) )
+        app . drawVec ( - 200 , 10 , '' , '' , 3 , true ) ;
+    app . context2D . restore ( ) ;
+}*/
+
+/*
+//图6.5向量的缩放源码
+if ( app . context2D ) {
+    let curr : number = 0 ;
+    for ( let i : number = 1 ; i < 14 ; i ++ ) {
+        app . context2D . save ( ) ;
+            app . context2D . translate ( curr = i * 30 , 300 ) ;
+            app . context2D . rotate ( Math2D . toRadian ( 100 ) ) ;
+            app . drawVec ( -20 * i , 10  ) ;
+        app . context2D . restore ( ) ;
+    }
+
+    for ( let i : number = 1 ; i < 14 ; i ++ ) {
+        app . context2D . save ( ) ;
+            app . context2D . translate ( curr + i * 30 , 300 ) ;
+            app . context2D . rotate ( Math2D . toRadian ( 100 ) )
+            app . drawVec ( 20 * i , 10 ) ;
+        app . context2D . restore ( ) ;
+    }
+}
+*/
+
+/*
+//图6.6向量点乘源码
+if ( app . context2D ) {
+    app . context2D . save ( ) ;
+        app . context2D . translate ( 20 , 300 ) ;
+        app . context2D . save ( ) ;
+            app . context2D . rotate ( Math2D . toRadian ( 30 ) ) ;
+            app . drawVec ( 200 , 10 , undefined , "向量b" , 3 , false ) ;
+        app . context2D . restore ( ) ;
+        app . context2D . save ( ) ;
+             app . context2D . rotate ( Math2D . toRadian ( - 30 ) ) ;
+             app . drawVec ( 160 , 10 , undefined , "向量a" , 3 , false ) ;
+        app . context2D . restore ( ) ;
+    app . context2D . restore ( ) ;
+
+    app . context2D . save ( ) ;
+        app . context2D . translate ( 300 , 300 ) ;
+        app . context2D . save ( ) ;
+             app . context2D . rotate ( Math2D . toRadian ( - 30 ) ) ;
+             app . drawVec ( 160 , 10 , undefined , "向量a" , 3 , false ) ;
+        app . context2D . restore ( ) ;
+        app . context2D . save ( ) ;
+            app . context2D . rotate ( Math2D . toRadian ( 60 ) ) ;
+            app . drawVec ( 200 , 10 , undefined , "向量b" , 3 , false ) ;
+         app . context2D . restore ( ) ;
+    app . context2D . restore ( ) ;
+
+    app . context2D . save ( ) ;
+        app . context2D . translate ( 550 , 300 ) ;
+        app . context2D . save ( ) ;
+             app . context2D . rotate ( Math2D . toRadian ( - 60 ) ) ;
+             app . drawVec ( 160 , 10 , undefined , "向量a" , 3 , false ) ;
+        app . context2D . restore ( ) ;
+        app . context2D . save ( ) ;
+            app . context2D . rotate ( Math2D . toRadian ( 60 ) ) ;
+            app . drawVec ( 200 , 10 , undefined , "向量b" , 3 , false ) ;
+         app . context2D . restore ( ) ;
+    app . context2D . restore ( ) ;
+}
+*/
+
+//图6.11点与三角形关系源码
+// app.drawTriangle(
+//   100 - 50,
+//   100,
+//   400 - 50,
+//   100,
+//   150 - 50,
+//   250,
+//   200 - 50,
+//   150,
+//   true
+// );
+// app.drawTriangle(
+//   100 + 350,
+//   100,
+//   400 + 350,
+//   100,
+//   150 + 350,
+//   250,
+//   300 + 350,
+//   270,
+//   true
+// );
+
+/*
+//图6.12/图6.13 凹凸多边形图示源码
+if ( app . context2D )  {
+    app . context2D . save ( ) ;
+    app . context2D . translate ( - 250 , 0 ) ;
+    app . drawPolygon ( [ vec2 . create (-100 , -50 ) ,
+        vec2 . create ( 0 , - 100 ) ,
+        vec2 . create ( 100 , -50 ) ,
+        vec2 . create ( 100  , 50 ) ,
+        vec2 . create ( 0 , 100 ) ,
+        vec2 . create ( - 100 , 50 ) ] , 400 , 300 , true ) ;
+    app . context2D . restore ( ) ;
+
+    app . context2D . save ( ) ;
+    app . context2D . translate ( 425 , 325 ) ;
+    app . drawPolygon ( [
+        vec2 . create ( 0 , 0 ) ,
+        vec2 . create ( 100 , - 100 ) ,
+        vec2 . create ( 100 , 50 ) ,
+        vec2 . create ( -100 , 50 ) ,
+        vec2 . create ( - 100 , - 100 )
+     ] , 0 , 0  ) ;
+     app . context2D . restore ( ) ;
+}
+*/
