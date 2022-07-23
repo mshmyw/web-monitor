@@ -1,0 +1,55 @@
+name: pull request CI
+# master 分支发生PR事件时触发运行工作流程
+on:
+  push:
+    branches: feature/github-action-demo
+  pull_request:
+    branches: master
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+        task: [test, pre-release]
+
+    steps:
+      - name: Update Chrome # See https://stackoverflow.com/q/63651059/419956
+        run: |
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt-get update
+          sudo apt-get --only-upgrade install google-chrome-stable
+          export CHROME_BIN=chromium-browser
+
+      # xvfb 无头浏览器设置
+      - name: Install xvfb
+        run: |
+          sudo apt-get install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
+          sudo /usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+
+      # 拉取代码
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 设置 node 环境
+      - name: Setup Node.js env
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+
+      # 安装依赖
+      - name: Installing Dependencies (Before Script)
+        run: |
+          npm install -g @angular/cli
+          npm install -g karma
+          npm install
+
+      # 执行单测 # or see https://medium.com/rupesh-tiwari/how-to-deploy-angular-apps-to-github-pages-gh-pages-setup-ci-cd-for-angular-app-with-github-714c1e555de5
+      - name: Run Task ${{matrix.task}}
+        run: npm run ${{matrix.task}}
+
+      - if: ${{matrix.task == 'test' }}
+        run: cat ./coverage/lcov.info | ./node_modules/.bin/codecov
