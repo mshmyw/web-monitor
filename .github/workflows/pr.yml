@@ -26,8 +26,7 @@ jobs:
       # 环境变量设置
       - name: Before Install xvfb
         run: |
-          echo chrome: ${which chrome}
-          export CHROME_BIN=$(which chrome)
+          export CHROME_BIN=chromium-browser
           sudo apt-get install xvfb
           xvfb-run --auto-servernum
 
