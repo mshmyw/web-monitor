@@ -1,9 +1,10 @@
 name: pull request CI
 # master 分支发生PR事件时触发运行工作流程
 on:
-  push: feature/github-action-demo
+  push:
+    branches: feature/github-action-demo
   pull_request:
-      branches: master
+    branches: master
 
 jobs:
   build:
